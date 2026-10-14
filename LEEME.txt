@@ -1,0 +1,4 @@
+Sube manifest.webmanifest a la raíz del repositorio, junto a index.html.
+Sube sw.js SOLO SI NO TENÍAS YA UN sw.js. Si tenías uno, hay que integrar sus funciones antes de reemplazarlo.
+Estos archivos NO configuran por sí solos el envío de push: también hace falta desplegar las Cloud Functions de Firebase.
+Los sonidos personalizados funcionan en la web abierta; el sistema controla los sonidos con la app cerrada.

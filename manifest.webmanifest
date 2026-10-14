@@ -1,0 +1,14 @@
+{
+  "name": "Date un Gusto",
+  "short_name": "Date un Gusto",
+  "description": "Pedidos y novedades de Date un Gusto",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#d90416",
+  "icons": [
+    {"src": "dug-icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "dug-icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
