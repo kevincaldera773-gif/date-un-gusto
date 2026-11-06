@@ -2513,7 +2513,6 @@ const DUGNoticeTone = (() => {
       <div class="dug-app-actions">
         <button class="dug-push-install" type="button" id="dugInstallButton" onclick="PushNotify.install()" hidden>Instalar app</button>
         <button class="dug-push-on" type="button" id="dugEnablePush" onclick="PushNotify.enable()">Activar notificaciones</button>
-        <button class="dug-push-off" type="button" id="dugTestPush" onclick="PushNotify.test()" hidden>Enviar prueba</button>
         <button class="dug-push-off" type="button" id="dugDisablePush" onclick="PushNotify.disable()" hidden>Desactivar</button>
       </div>
       <div class="dug-push-status" aria-live="polite"><span class="dug-push-dot" id="dugPushDot"></span><span id="dugPushStatus">Revisando compatibilidad…</span></div>
@@ -5379,7 +5378,6 @@ const PushNotify = {
     const installBtn = document.getElementById("dugInstallButton");
     const enable = document.getElementById("dugEnablePush");
     const disable = document.getElementById("dugDisablePush");
-    const test = document.getElementById("dugTestPush");
     const label = document.getElementById("dugPushStatus");
     const dot = document.getElementById("dugPushDot");
     DUGNoticeTone.syncUI();
@@ -5401,7 +5399,6 @@ const PushNotify = {
     installBtn.hidden = installed || !this.installPrompt;
     enable.hidden = false;
     disable.hidden = true;
-    test.hidden = true;
     dot.classList.remove("active");
     if(this.isIos() && !installed){
       enable.disabled = true;
@@ -5430,7 +5427,6 @@ const PushNotify = {
         if(linked?.exists){
           enable.hidden = true;
           disable.hidden = false;
-          test.hidden = false;
           dot.classList.add("active");
           label.textContent = "Notificaciones activadas en este dispositivo.";
         }else{
@@ -5495,32 +5491,6 @@ const PushNotify = {
       console.warn("No se pudieron desactivar notificaciones:",e);
       if(!silent) U.toast("No se pudieron desactivar las notificaciones. Inténtalo otra vez.");
     }finally{this._loading=false; if(!silent) await this.render();}
-  },
-  async test(){
-    if(!state.user) return U.toast("Inicia sesión primero.");
-    try{
-      // La autenticación sigue siendo Firebase, pero el envío push corre en Netlify.
-      const token = await state.user.getIdToken();
-      const response = await fetch("https://cosmic-semifreddo-d3c3c5.netlify.app/.netlify/functions/push-test", {
-        method:"POST",
-        headers:{"Authorization":"Bearer " + token,"Content-Type":"application/json"},
-        body:"{}",
-        cache:"no-store"
-      });
-      const data = await response.json().catch(()=>({}));
-      if(!response.ok){
-        console.warn("Push Netlify:", response.status, data.error || "Respuesta inesperada");
-        throw new Error(response.status === 401 ? "Tu sesión caducó. Inicia sesión nuevamente." :
-          response.status === 403 ? "Netlify rechazó el origen de la solicitud." :
-          response.status === 404 ? "La función push-test no se encontró en Netlify." :
-          "No se pudo enviar la prueba. Revisa los registros de push-test en Netlify.");
-      }
-      if(Number(data.sent)>0) U.toast("Prueba enviada. Revisa tus notificaciones.");
-      else U.toast("No se envió a ningún dispositivo. Comprueba la suscripción y las claves VAPID.");
-    }catch(e){
-      console.warn("Error de prueba push Netlify:",e);
-      U.toast(e instanceof TypeError ? "Error de conexión con Netlify. Comprueba la red y el dominio de la app." : e.message || "Falló la prueba de notificaciones.");
-    }
   },
   async install(){
     const ev = this.installPrompt;
