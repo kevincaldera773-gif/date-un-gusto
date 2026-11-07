@@ -654,36 +654,14 @@ a{color:inherit;text-decoration:none;}
 .loyalty-benefits ul{list-style:none;margin:8px 0 0;padding:0}
 .loyalty-benefits li{padding:8px 0;border-top:1px solid var(--linea);font-size:13px;line-height:1.5}
 .loyalty-benefits li span{display:block}
-.dug-sound-panel{margin-top:16px;padding:14px;background:#fff8f5;border:1px solid #f0dad4;border-radius:15px}
-.dug-sound-switch{display:flex;align-items:center;gap:14px;justify-content:space-between;color:#3b1c1c;cursor:pointer}
-.dug-sound-switch strong{display:block;font-size:13px;font-weight:950}
-.dug-sound-switch small{display:block;margin-top:4px;font-size:11px;line-height:1.45;color:#776968;font-weight:600}
-.dug-sound-switch input{width:22px;height:22px;flex:0 0 22px;accent-color:var(--rojo);cursor:pointer}
-.dug-sound-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.dug-sound-actions[hidden]{display:none}
-.dug-sound-actions button{border:1px solid #e5c9c5;border-radius:999px;background:#fff;color:var(--vino);font-weight:850;font-size:11px;padding:9px 12px;cursor:pointer}
-.dug-sound-actions button:active{transform:scale(.98)}
-.dug-sound-caption{font-size:10.5px;line-height:1.5;color:#816e6b;margin-top:9px}
-
-/* Date un Gusto · instalación y notificaciones */
-.dug-app-connect { background:#fff; border:1px solid var(--linea); border-radius:24px; padding:17px; margin:0 0 16px; box-shadow:var(--sombra-suave); }
-.dug-app-connect-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-.dug-app-connect-icon { display:grid; place-items:center; width:43px; height:43px; flex:0 0 43px; border-radius:15px; background:#fff0f1; color:var(--rojo); }
-.dug-app-connect-icon svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-.dug-app-connect h3 { font-size:16px; line-height:1.25; margin:0; color:#26090a; }
-.dug-app-connect .dug-eyebrow { font-size:10px; font-weight:900; letter-spacing:.11em; color:var(--rojo); text-transform:uppercase; margin:0 0 3px; }
-.dug-app-connect p { font-size:12.5px; line-height:1.55; color:var(--gris); margin:0 0 12px; }
-.dug-app-install { border:1px dashed #e6b2b6; padding:12px 13px; background:#fffafa; border-radius:16px; margin-bottom:12px; }
-.dug-app-install strong { font-size:12.5px; color:#4b1b1c; display:block; margin-bottom:5px; }
-.dug-app-install p { margin:0; }
-.dug-app-actions { display:flex; gap:8px; flex-wrap:wrap; }
-.dug-app-actions button { border-radius:13px; font-size:12px; font-weight:850; border:1px solid #ead2d4; padding:10px 13px; flex:1 1 auto; cursor:pointer; }
-.dug-push-on { background:var(--rojo); color:white; border-color:var(--rojo)!important; }
-.dug-push-off { background:white; color:#5a2326; }
-.dug-push-install { background:#fff0f1; color:#a60b1a; }
-.dug-app-connect .dug-push-status { display:flex; align-items:center; gap:7px; margin:10px 0 0; font-size:11px; font-weight:750; color:#6b6161; }
-.dug-push-dot { width:7px; height:7px; border-radius:50%; background:#c4b6b6; }
-.dug-push-dot.active { background:#228151; }
+.dug-push-reminder[hidden]{display:none}
+.dug-push-reminder{position:sticky;top:0;z-index:35;display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;padding:9px 14px;background:#fff4f2;color:#4e151a;border-bottom:1px solid #edcdca}
+.dug-push-reminder div{flex:1 1 170px}
+.dug-push-reminder strong{font-size:13px}
+.dug-push-reminder p{font-size:12px;line-height:1.35;margin-top:3px}
+.dug-push-reminder button{padding:8px 12px;border:0;border-radius:12px;background:var(--rojo);color:#fff;font-size:12px;font-weight:850;cursor:pointer}
+#app:has(> .dug-push-reminder:not([hidden])){display:grid;grid-template-rows:auto minmax(0,1fr)}
+#app:has(> .dug-push-reminder:not([hidden])) > .screen.active{min-height:0}
 
 /* PROFILE */
 .profile-card{background:linear-gradient(135deg,var(--rojo),var(--vino));color:#fff;border-radius:26px;padding:18px;box-shadow:var(--sombra);}
@@ -1902,13 +1880,6 @@ a{color:inherit;text-decoration:none;}
 
 
 /* ===== v2 Tarjetas Date un Gusto ===== */
-.reward-route-card{margin-top:12px;background:linear-gradient(135deg,#fff,#fff5f0);border:1px solid var(--linea);border-radius:24px;padding:16px;box-shadow:var(--sombra-suave);display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.reward-route-card .copy{min-width:0;}
-.reward-route-card .copy h3{font-size:18px;line-height:1.15;margin-bottom:5px;}
-.reward-route-card .copy p{font-size:12px;color:var(--gris);line-height:1.45;}
-.reward-route-card .cta{flex:0 0 auto;background:linear-gradient(135deg,var(--rojo),var(--vino));color:#fff;border-radius:16px;padding:12px 14px;font-size:12px;font-weight:1000;box-shadow:0 10px 22px rgba(126,0,9,.18);}
-.reward-route-card .mini-qr{width:58px;height:58px;border-radius:14px;background:#fff;border:1px solid var(--linea);padding:5px;box-shadow:var(--sombra-suave);}
-.reward-route-card .mini-qr img{width:100%;height:100%;object-fit:contain;}
 .rewards-card.premium{background:linear-gradient(180deg,#fff,#fff8f3);}
 .reward-screen-hero{background:linear-gradient(135deg,var(--rojo),var(--vino));color:#fff;border-radius:28px;padding:18px;box-shadow:var(--sombra);position:relative;overflow:hidden;margin-bottom:14px;}
 .reward-screen-hero:after{content:"";position:absolute;right:-46px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.12);} 
@@ -2195,26 +2166,6 @@ const DUGNoticeTone = (() => {
     return true;
   }
 
-  function setEnabled(on) {
-    enabled = !!on;
-    try { localStorage.setItem(prefKey, enabled ? "on" : "off"); } catch (_) {}
-    syncUI();
-    if (enabled) sound("client", "", true);
-  }
-  function syncUI() {
-    const checkbox = document.getElementById("dugSoundEnabled");
-    if(checkbox) checkbox.checked = enabled;
-    const label = document.getElementById("dugSoundStatus");
-    if(label) label.textContent = enabled
-      ? "Sonará al recibir avisos con la app abierta (después de interactuar con ella)."
-      : "Los sonidos dentro de la app están silenciados.";
-  }
-  function preview(kind) {
-    if(!enabled) return;
-    unlock();
-    if(ctx?.state === "suspended") ctx.resume().then(()=>sound(kind,"",true)).catch(()=>{});
-    else sound(kind,"",true);
-  }
   function reset() { clientSnapshots.clear(); adminSnapshots.clear(); recent.clear(); }
 
   // No suenan los pedidos antiguos en la primera sincronización.
@@ -2262,7 +2213,7 @@ const DUGNoticeTone = (() => {
     const status=String(payload.status || "");
     sound(isAdmin ? "admin" : "client", id ? (isAdmin ? "new-order:"+id : "client:"+id+":"+status) : "");
   }
-  return { sound, preview, setEnabled, syncUI, reset, customerChanges, newAdminOrders, forwardedPush };
+  return { sound, reset, customerChanges, newAdminOrders, forwardedPush };
 })();
 </script>
 
@@ -2270,6 +2221,13 @@ const DUGNoticeTone = (() => {
 
 <body>
 <div id="app">
+  <aside class="dug-push-reminder" id="dugPushReminder" aria-labelledby="dugPushTitle" hidden>
+    <div>
+      <strong id="dugPushTitle">Activa las notificaciones</strong>
+      <p id="dugPushStatus" aria-live="polite">Recibe avisos sobre tus pedidos.</p>
+    </div>
+    <button type="button" id="dugEnablePush" onclick="PushNotify.enable()">Activar avisos</button>
+  </aside>
 
 <section id="screen-auth" class="screen active">
   <div class="auth-screen">
@@ -2517,56 +2475,6 @@ const DUGNoticeTone = (() => {
       </div>
     </div>
 
-    <!-- Avisos e instalación: iOS, Android y computadora -->
-    <div class="dug-app-connect" id="dugAppConnect">
-      <div class="dug-app-connect-head">
-        <span class="dug-app-connect-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 10h18c0-2-3-3-3-10Z"/><path d="M10 22h4"/></svg></span>
-        <div><div class="dug-eyebrow">Tu app, siempre cerca</div><h3>Instala Date un Gusto</h3></div>
-      </div>
-      <p>Guarda nuestra app en tu teléfono y recibe avisos de tus pedidos, aunque no la tengas abierta.</p>
-      <div class="dug-app-install" id="dugInstallInstructions" aria-live="polite">
-        <strong>¿Cómo agregarla?</strong>
-        <p>Abre esta página desde tu teléfono para ver los pasos.</p>
-      </div>
-      <div class="dug-app-actions">
-        <button class="dug-push-install" type="button" id="dugInstallButton" onclick="PushNotify.install()" hidden>Instalar app</button>
-        <button class="dug-push-on" type="button" id="dugEnablePush" onclick="PushNotify.enable()">Activar notificaciones</button>
-        <button class="dug-push-off" type="button" id="dugDisablePush" onclick="PushNotify.disable()" hidden>Desactivar</button>
-      </div>
-      <div class="dug-push-status" aria-live="polite"><span class="dug-push-dot" id="dugPushDot"></span><span id="dugPushStatus">Revisando compatibilidad…</span></div>
-      <div class="dug-sound-panel">
-        <label class="dug-sound-switch" for="dugSoundEnabled"><span><strong>Sonido de avisos</strong><small>Un tono para tus pedidos y otro para los nuevos pedidos del administrador.</small></span><input id="dugSoundEnabled" type="checkbox" checked onchange="DUGNoticeTone.setEnabled(this.checked)" aria-label="Activar sonido de notificaciones dentro de la aplicación"></label>
-        <div class="dug-sound-actions" id="dugSoundPreviews">
-          <button type="button" onclick="DUGNoticeTone.preview('client')">▶ Escuchar cliente</button>
-          <button type="button" onclick="DUGNoticeTone.preview('admin')">▶ Escuchar administrador</button>
-        </div>
-        <p id="dugSoundStatus" class="dug-sound-caption">Sonará cuando la app esté abierta y el navegador permita reproducir audio.</p>
-        <p class="dug-sound-caption">Con la app cerrada, el tono de la notificación lo decide el sistema de tu teléfono.</p>
-      </div>
-    </div>
-
-    <div class="rewards-card premium">
-      <div class="rewards-head">
-        <div>
-          <div class="eyebrow">Descuentos</div>
-          <h2 class="section-title">Resumen de tarjetas</h2>
-        </div>
-      </div>
-      <p class="small muted mb10">Tus tarjetas activadas aparecerán aquí. Para verlas en grande y activarlas, entra a la nueva sección de Tarjetas.</p>
-      <div class="wallet-grid cards-rich mt12" id="walletCards"></div>
-      <button class="btn btn-primary mt12" onclick="App.go('rewards')">Ir a Tarjetas</button>
-    </div>
-
-    <div class="reward-route-card mb16">
-      <div class="copy">
-        <h3>Sección nueva de Tarjetas</h3>
-        <p>Activa códigos, visualiza tus beneficios y enseña tu QR directamente desde la app.</p>
-      </div>
-      <div class="row" style="align-items:center;gap:10px;">
-        <div class="mini-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fdateungusto.com.mx%2F" alt="QR"></div>
-        <button class="cta" onclick="App.go('rewards')">Abrir</button>
-      </div>
-    </div>
     <div class="menu-list mb16">
       <button class="menu-row" onclick="App.go('orders')"><span><span data-ui-icon="receipt"></span> Mis pedidos</span><small>Ver historial</small></button>
       <button class="menu-row" onclick="App.go('menu')"><span><span data-ui-icon="tray"></span> Hacer pedido</span><small>Ir al menú</small></button>
@@ -3329,6 +3237,7 @@ const App = {
 
     auth.onAuthStateChanged(user => {
       state.user = user;
+      PushNotify.render();
 
       if(user){
         state.profile = {
@@ -3805,7 +3714,7 @@ const Rewards = {
     if(!state.profile) return;
     this.normalizeProfile();
     const cards = state.profile.rewardCards || [];
-    const targets = [$("walletCards"), $("rewardsHubCards")].filter(Boolean);
+    const targets = [$("rewardsHubCards")].filter(Boolean);
     targets.forEach(wallet=>{
       wallet.innerHTML = cards.length
         ? cards.map(c=>RewardCards.face(c,true)).join("")
@@ -5369,7 +5278,7 @@ Favs.renderHome = function(){
 // Date un Gusto · Web Push compatible con iOS instalado y navegadores Android.
 const DUG_VAPID_PUBLIC = "BGyD24Zjz9AhD4XnEdLmLtH43wUtvp3EiIGuj7a_01A_jHFZY3LWXco2l0xxDLWBCpmAsw12VRNjnD04fL5LFvA";
 const PushNotify = {
-  installPrompt: null,
+  renderVersion: 0,
   _loading: false,
   isIos(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); },
   isAndroid(){ return /Android/i.test(navigator.userAgent); },
@@ -5406,72 +5315,49 @@ const PushNotify = {
     });
   },
   async render(){
-    const box = document.getElementById("dugAppConnect");
-    if(!box) return;
-    const instructions = document.getElementById("dugInstallInstructions");
-    const installBtn = document.getElementById("dugInstallButton");
-    const enable = document.getElementById("dugEnablePush");
-    const disable = document.getElementById("dugDisablePush");
-    const previews = document.getElementById("dugSoundPreviews");
-    const label = document.getElementById("dugPushStatus");
-    const dot = document.getElementById("dugPushDot");
-    DUGNoticeTone.syncUI();
-    const installed = this.standalone();
-    let installTitle = "Tu acceso directo";
-    let instruction = "Abre el menú del navegador y busca la opción de instalar o añadir a inicio.";
-    if(installed){
-      installTitle = "¡Ya la tienes instalada!";
-      instruction = "Estás usando Date un Gusto desde tu pantalla de inicio.";
-    }else if(this.isIos()){
-      installTitle = "En iPhone: agrégala a Inicio";
-      instruction = "Abre este sitio en Safari, toca Compartir (cuadro con flecha hacia arriba), selecciona ‘Agregar a pantalla de inicio’, activa ‘Abrir como app’ si aparece y toca Agregar. Después ábrela desde su icono para activar avisos.";
-    }else if(this.isAndroid()){
-      installTitle = "En Android: instálala desde Chrome";
-      instruction = "Abre Date un Gusto en Chrome, toca los tres puntos (⋮), luego ‘Agregar a pantalla principal’ o ‘Instalar app’.";
+    const reminder = $("dugPushReminder");
+    const enable = $("dugEnablePush");
+    const label = $("dugPushStatus");
+    const version = ++this.renderVersion;
+    const uid = state.user?.uid;
+    if(!uid){
+      reminder.hidden = true;
+      return;
     }
-    instructions.querySelector("strong").textContent = installTitle;
-    instructions.querySelector("p").textContent = instruction;
-    installBtn.hidden = installed || !this.installPrompt;
-    enable.hidden = false;
-    disable.hidden = true;
-    previews.hidden = false;
-    dot.classList.remove("active");
-    if(this.isIos() && !installed){
-      enable.disabled = true;
-      label.textContent = "Primero agrégala a Inicio y ábrela desde el icono.";
+    const show = (message, actionable) => {
+      if(version !== this.renderVersion || state.user?.uid !== uid) return;
+      label.textContent = message;
+      enable.hidden = !actionable;
+      enable.disabled = this._loading;
+      reminder.hidden = false;
+    };
+    if(this.isIos() && !this.standalone()){
+      show("En Safari, usa Compartir → Agregar a pantalla de inicio. Abre la app desde su icono para activar los avisos.", false);
       return;
     }
     if(!this.supported()){
-      enable.disabled = true;
-      label.textContent = !window.isSecureContext ? "Se necesita HTTPS para enviar avisos." : "Este navegador no admite notificaciones push.";
+      show("Este navegador no admite avisos. Abre Date un Gusto en un navegador compatible.", false);
       return;
     }
     if(Notification.permission === "denied"){
-      enable.disabled = true;
-      label.textContent = "Permiso bloqueado. Cámbialo en los ajustes de notificaciones del dispositivo o navegador.";
+      show("Permite las notificaciones desde los ajustes del navegador o del dispositivo.", false);
       return;
     }
-    enable.disabled = this._loading;
-    label.textContent = "Notificaciones desactivadas.";
+    if(Notification.permission !== "granted"){
+      show("Recibe avisos sobre tus pedidos.", true);
+      return;
+    }
     try{
       const reg = await this.registration();
       const sub = await reg.pushManager.getSubscription();
-      if(sub && Notification.permission === "granted"){
-        // Una suscripción del navegador sin registro en Firestore no permite recibir avisos.
-        const subId = await this.digest(sub.endpoint);
-        const linked = state.user ? await db.collection("users").doc(state.user.uid).collection("pushSubscriptions").doc(subId).get() : null;
-        if(linked?.exists){
-          enable.hidden = true;
-          disable.hidden = false;
-          previews.hidden = true;
-          dot.classList.add("active");
-          label.textContent = "Notificaciones activadas en este dispositivo.";
-        }else{
-          label.textContent = "Tienes permiso, pero falta completar el registro. Toca Activar.";
-        }
+      const linked = sub && await db.collection("users").doc(uid).collection("pushSubscriptions").doc(await this.digest(sub.endpoint)).get();
+      if(linked?.exists){
+        if(version === this.renderVersion && state.user?.uid === uid) reminder.hidden = true;
+        return;
       }
-    }catch(e){
-      label.textContent = "No se encontró el servicio de notificaciones. Revisa la instalación.";
+      show("Completa la activación para recibir los avisos de tus pedidos.", true);
+    }catch(error){
+      show("No pudimos comprobar tus avisos. Intenta activarlos de nuevo.", true);
     }
   },
   async enable(){
@@ -5481,6 +5367,7 @@ const PushNotify = {
     if(!this.supported()) return U.toast("Este navegador o conexión no admite notificaciones push.");
     if(Notification.permission === "denied") return U.toast("Permite notificaciones desde los ajustes del teléfono.");
     this._loading = true;
+    $("dugEnablePush").disabled = true;
     try{
       // La petición al usuario se realiza directamente desde el botón.
       const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
@@ -5529,21 +5416,7 @@ const PushNotify = {
       if(!silent) U.toast("No se pudieron desactivar las notificaciones. Inténtalo otra vez.");
     }finally{this._loading=false; if(!silent) await this.render();}
   },
-  async install(){
-    const ev = this.installPrompt;
-    if(ev){
-      this.installPrompt = null;
-      try { await ev.prompt(); await ev.userChoice; } catch(e){}
-      this.render();
-    }else if(this.isIos()){
-      U.toast("En Safari: Compartir → Agregar a pantalla de inicio.");
-    }else{
-      U.toast("En Chrome: menú ⋮ → Instalar app o Agregar a pantalla principal.");
-    }
-  },
   init(){
-    window.addEventListener("beforeinstallprompt",ev=>{ ev.preventDefault(); this.installPrompt=ev; this.render(); });
-    window.addEventListener("appinstalled",()=>{ this.installPrompt=null; this.render(); });
     window.addEventListener("focus",()=>this.render());
     navigator.serviceWorker?.addEventListener("message", ev=>{
       if(ev.data?.type === "DUG_PUSH_OPEN") App.go(ev.data.screen || "orders");
@@ -5568,7 +5441,6 @@ const Profile = {
     }
 
     Rewards.render();
-    PushNotify.render();
 
     if(state.user){
       App.checkPrivate().then(()=>{
