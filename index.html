@@ -640,7 +640,6 @@ a{color:inherit;text-decoration:none;}
 .loyalty-card{--stamp:#9d4a32;background:#fff7ec;border:1px solid #ebcdb9;border-radius:22px;padding:20px;margin:16px 0 10px;color:#432420}
 .loyalty-silver{--stamp:#46586b;background:#f1f5fa;border-color:#cbd6e2;color:#263647}
 .loyalty-gold{--stamp:#805415;background:#fff5d3;border-color:#e2c785;color:#523914}
-.loyalty-diamond{--stamp:#1c5671;background:#eaf8ff;border-color:#b9dde9;color:#183e51}
 .loyalty-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .loyalty-heading h2{font-size:clamp(19px,5vw,26px);margin-top:4px}
 .loyalty-rank{border-radius:999px;background:var(--stamp);color:#fff;padding:6px 12px;font-size:12px}
@@ -654,6 +653,8 @@ a{color:inherit;text-decoration:none;}
 .loyalty-benefits ul{list-style:none;margin:8px 0 0;padding:0}
 .loyalty-benefits li{padding:8px 0;border-top:1px solid var(--linea);font-size:13px;line-height:1.5}
 .loyalty-benefits li span{display:block}
+.rank-promotions{list-style:none;padding:0;margin:8px 0 0}
+.rank-promotions li{padding:8px 0;border-top:1px solid var(--linea);font-size:13px}
 .dug-push-reminder[hidden]{display:none}
 .dug-push-reminder{position:sticky;top:0;z-index:35;display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;padding:9px 14px;background:#fff4f2;color:#4e151a;border-bottom:1px solid #edcdca}
 .dug-push-reminder div{flex:1 1 170px}
@@ -2480,6 +2481,11 @@ const DUGNoticeTone = (() => {
       <button class="menu-row" onclick="App.go('menu')"><span><span data-ui-icon="tray"></span> Hacer pedido</span><small>Ir al menú</small></button>
       <button class="menu-row hidden" id="adminProfileRow" onclick="Private.open()"><span><span data-ui-icon="admin"></span> Panel de administración</span><small>Gestionar tienda</small></button>
     </div>
+    <details class="loyalty-benefits">
+      <summary>Aclaraciones</summary>
+      <p class="small muted mt10">¿Tienes dudas sobre un pedido, pago, sello o promoción? Si es sobre un pedido, incluye el folio para que podamos localizarlo.</p>
+      <button class="btn btn-light mt10" type="button" onclick="Profile.contactSupport()">Contactar por WhatsApp</button>
+    </details>
     <button class="btn btn-danger" onclick="Auth.logout()">Cerrar sesión</button>
   </div>
 </section>
@@ -2498,6 +2504,10 @@ const DUGNoticeTone = (() => {
     </div>
 
     <div id="loyaltyCard"></div>
+    <section class="reward-claim-card" aria-labelledby="rankPromotionsHeading">
+      <h2 id="rankPromotionsHeading" class="section-title">Promociones de tu rango</h2>
+      <ul id="rankPromotions" class="rank-promotions"></ul>
+    </section>
 
     <div class="reward-claim-card">
       <div class="eyebrow">Activar tarjeta</div>
@@ -3332,6 +3342,7 @@ const App = {
       db.collection("settings").doc("discounts").onSnapshot(snap=>{
         state.discounts = snap.exists && Array.isArray(snap.data().items) ? Discounts.clean(snap.data().items) : [];
         if(state.appliedDiscount && state.appliedDiscount.source !== "reward" && !Discounts.find(state.appliedDiscount.code)) state.appliedDiscount = null;
+        if(document.querySelector(".screen.active")?.id === "screen-rewards") Loyalty.render();
         refresh();
       }, e=>console.warn("Descuentos en vivo no disponibles:", e))
     );
@@ -4116,6 +4127,8 @@ const Discounts = {
       value:Number(d.value || 0),
       min:Number(d.min || 0),
       active:d.active !== false,
+      minRank:["silver","gold"].includes(d.minRank) ? d.minRank : "bronze",
+      showInCards:d.showInCards === true,
       note:String(d.note || "").trim()
     })).filter(d=>d.code && d.value > 0);
   },
@@ -4137,10 +4150,17 @@ const Discounts = {
     const c = String(code || "").trim().toUpperCase();
     return state.discounts.find(d=>d.code === c && d.active !== false);
   },
+  rankName(discount){
+    return Loyalty.ranks.find(rank=>rank.color === discount.minRank)?.name || "Bronce";
+  },
+  eligible(discount, rankIndex=Loyalty.progress().rankIndex){
+    const minimum = Loyalty.ranks.findIndex(rank=>rank.color === discount.minRank);
+    return minimum <= rankIndex;
+  },
   amount(subtotal, discount=state.appliedDiscount){
     if(!discount) return 0;
-    const d = this.find(discount.code) || discount;
-    if(!d || d.active === false) return 0;
+    const d = discount.source === "reward" ? discount : this.find(discount.code);
+    if(!d || d.active === false || (d.source !== "reward" && !this.eligible(d))) return 0;
     if(Number(subtotal||0) < Number(d.min||0)) return 0;
     const raw = d.type === "fixed" ? Number(d.value||0) : Number(subtotal||0) * (Number(d.value||0)/100);
     return Math.max(0, Math.min(Number(subtotal||0), Math.round(raw)));
@@ -4159,6 +4179,12 @@ const Discounts = {
       state.appliedDiscount = null;
       Cart.render(); Cart.ui();
       this.renderBox("Código no válido o inactivo.");
+      return;
+    }
+    if(!this.eligible(d)){
+      state.appliedDiscount = null;
+      Cart.render(); Cart.ui();
+      this.renderBox("Este código requiere rango " + this.rankName(d) + " o superior.");
       return;
     }
     if(subtotal < d.min){
@@ -4671,6 +4697,14 @@ const Checkout = {
     if(!StoreSettings.canOrder()) return;
     if(!state.cart.length) return App.go("menu");
     if(!this.valid()) return;
+    const discount = state.appliedDiscount;
+    if(discount && discount.source !== "reward"){
+      const current = Discounts.find(discount.code);
+      if(!current || !Discounts.eligible(current)){
+        Discounts.remove();
+        return U.toast("La promoción ya no está disponible para tu rango. Revisa tu carrito.");
+      }
+    }
 
     const button = document.querySelector('#screen-checkout button[onclick="Checkout.place()"]');
     if(button){ button.classList.add("disabled"); button.dataset.prevText = button.textContent; button.textContent = "Confirmando…"; }
@@ -5221,25 +5255,32 @@ Checkout.place = function(){ Addr.saveIfAsked(); return _coPlace(); };
 const Loyalty = {
   stampsPerRank: 10,
   ranks: [
-    {name:"Bronce", color:"bronze", benefit:"Distintivo digital de bienvenida."},
-    {name:"Plata", color:"silver", benefit:"Distintivo Plata y reconocimiento por 10 pedidos entregados."},
-    {name:"Oro", color:"gold", benefit:"Distintivo Oro y reconocimiento por 20 pedidos entregados."},
-    {name:"Diamante", color:"diamond", benefit:"Distintivo Diamante y reconocimiento como cliente de máximo rango."}
+    {name:"Bronce", color:"bronze", benefit:"Acceso a promociones generales."},
+    {name:"Plata", color:"silver", benefit:"Promociones generales y ofertas seleccionadas para Plata."},
+    {name:"Oro", color:"gold", benefit:"Todas las anteriores y promociones especiales exclusivas para Oro."}
   ],
+  progress(){
+    const uid = state.user?.uid;
+    const orders = uid ? Orders.mergeLists((state.myOrders || []).filter(order =>
+      order.userId === uid && !order.localOnly)) : [];
+    const total = orders.filter(order => order.status === "entregado").length;
+    return {total, rankIndex:Math.min(Math.floor(total / this.stampsPerRank), this.ranks.length - 1)};
+  },
   render(){
     const card = $("loyaltyCard");
     if(!card) return;
-    const uid = state.user?.uid;
-    if(!uid){ card.innerHTML = ""; return; }
-    const delivered = Orders.mergeLists((state.myOrders || []).filter(order =>
-      order.userId === uid && !order.localOnly && order.status === "entregado"));
-    const total = delivered.length;
-    const rankIndex = Math.min(Math.floor(total / this.stampsPerRank), this.ranks.length - 1);
+    if(!state.user){ card.innerHTML = ""; return; }
+    const {total, rankIndex} = this.progress();
     const rank = this.ranks[rankIndex];
     const next = this.ranks[rankIndex + 1];
+    const promotions = state.discounts.filter(discount=>discount.showInCards && discount.active !== false && Discounts.eligible(discount, rankIndex));
+    $("rankPromotions").innerHTML = promotions.length ? promotions.map(discount=>
+      "<li><strong>" + U.esc(Discounts.label(discount)) + "</strong> · " + Discounts.rankName(discount) +
+      (discount.min > 0 ? " · Compra mínima " + U.money(discount.min) : "") + "</li>").join("")
+      : "<li>Por ahora no hay promociones disponibles para tu rango.</li>";
     const stamps = Math.min(this.stampsPerRank, total - rankIndex * this.stampsPerRank);
     const progress = next ? "Te faltan " + (this.stampsPerRank - stamps) + " para llegar a " + next.name + "."
-      : stamps === this.stampsPerRank ? "¡Completaste la tarjeta Diamante!" : "Ya estás en el rango máximo. Completa tu tarjeta Diamante.";
+      : stamps === this.stampsPerRank ? "¡Completaste la tarjeta Oro!" : "Ya estás en el rango máximo. Completa tu tarjeta Oro.";
     const cells = Array.from({length:this.stampsPerRank}, (_, index) =>
       '<li class="loyalty-stamp' + (index < stamps ? ' earned' : '') + '">' + (index < stamps ? "✓" : index + 1) + "</li>").join("");
     const benefits = this.ranks.map((level,index) =>
@@ -5427,6 +5468,12 @@ const PushNotify = {
 PushNotify.init();
 
 const Profile = {
+  contactSupport(){
+    const phone = U.whatsappNumber();
+    if(!phone) return U.toast("Todavía no hay un número de atención configurado.");
+    const message = "Hola, Date un Gusto. Quiero pedir una aclaración.\nFolio (si aplica): \nMotivo: ";
+    window.location.href = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+  },
   render(){
     if(!state.user) return App.go("auth");
     const p = state.profile || {};
@@ -6319,6 +6366,13 @@ const Private = {
       </div>
       <label class="private-label">Mínimo de compra</label>
       <input class="private-input" id="dMin" type="number" placeholder="0">
+      <label class="private-label" for="dMinRank">Rango mínimo</label>
+      <select class="private-select" id="dMinRank">
+        <option value="bronze">Bronce · promoción general</option>
+        <option value="silver">Plata · Plata y Oro</option>
+        <option value="gold">Oro · exclusiva</option>
+      </select>
+      <label class="private-label"><input type="checkbox" id="dShowInCards"> Mostrar promoción en Tarjetas</label>
       <label class="private-label">Nota interna</label>
       <input class="private-input" id="dNote" placeholder="Ej. Promo fin de semana">
       <button class="btn btn-primary mt18" onclick="Private.saveDiscount()">Guardar código</button>
@@ -6332,7 +6386,7 @@ const Private = {
           <div class="ppic">%</div>
           <div>
             <div class="pname2">${U.esc(d.code)} · ${d.type==='fixed' ? U.money(d.value) : d.value+'%'}</div>
-            <div class="meta">Mínimo ${U.money(d.min)} · ${d.active===false?'Inactivo':'Activo'} ${d.note ? '· '+U.esc(d.note) : ''}</div>
+            <div class="meta">Mínimo ${U.money(d.min)} · ${Discounts.rankName(d)} · ${d.active===false?'Inactivo':'Activo'} ${d.note ? '· '+U.esc(d.note) : ''}</div>
             <div class="private-actions">
               <button class="btn-mini red" onclick="Private.editDiscount('${U.esc(d.id)}')">Editar</button>
               <button class="btn-mini" onclick="Private.toggleDiscount('${U.esc(d.id)}')">${d.active===false?'Activar':'Pausar'}</button>
@@ -6346,6 +6400,8 @@ const Private = {
   clearDiscount(){
     ["dId","dCode","dValue","dMin","dNote"].forEach(id=>$(id).value="");
     $("dType").value = "percent";
+    $("dMinRank").value = "bronze";
+    $("dShowInCards").checked = false;
   },
   editDiscount(id){
     const d = state.discounts.find(x=>x.id===id);
@@ -6353,6 +6409,8 @@ const Private = {
     $("dId").value = d.id;
     $("dCode").value = d.code;
     $("dType").value = d.type;
+    $("dMinRank").value = d.minRank || "bronze";
+    $("dShowInCards").checked = d.showInCards;
     $("dValue").value = d.value;
     $("dMin").value = d.min || 0;
     $("dNote").value = d.note || "";
@@ -6366,6 +6424,8 @@ const Private = {
       type:$("dType").value,
       value:Number($("dValue").value || 0),
       min:Number($("dMin").value || 0),
+      minRank:$("dMinRank").value,
+      showInCards:$("dShowInCards").checked,
       note:$("dNote").value.trim(),
       active:true
     };
