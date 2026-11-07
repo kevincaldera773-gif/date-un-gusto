@@ -636,12 +636,31 @@ a{color:inherit;text-decoration:none;}
 .order-total{margin-top:10px;padding-top:10px;border-top:1px dashed var(--linea);display:flex;justify-content:space-between;font-weight:1000;}
 
 /* Controles de sonido para avisos en primer plano */
+
+.loyalty-card{--stamp:#9d4a32;background:#fff7ec;border:1px solid #ebcdb9;border-radius:22px;padding:20px;margin:16px 0 10px;color:#432420}
+.loyalty-silver{--stamp:#46586b;background:#f1f5fa;border-color:#cbd6e2;color:#263647}
+.loyalty-gold{--stamp:#805415;background:#fff5d3;border-color:#e2c785;color:#523914}
+.loyalty-diamond{--stamp:#1c5671;background:#eaf8ff;border-color:#b9dde9;color:#183e51}
+.loyalty-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.loyalty-heading h2{font-size:clamp(19px,5vw,26px);margin-top:4px}
+.loyalty-rank{border-radius:999px;background:var(--stamp);color:#fff;padding:6px 12px;font-size:12px}
+.loyalty-card p{font-size:13px;line-height:1.5}
+.loyalty-stamps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;list-style:none;margin:14px 0;padding:0;max-width:360px}
+.loyalty-stamp{display:grid;place-items:center;aspect-ratio:1;border:1px dashed var(--stamp);border-radius:50%;font-size:13px;font-weight:800}
+.loyalty-stamp.earned{background:var(--stamp);color:#fff;border-style:solid}
+.loyalty-total{margin-top:7px}
+.loyalty-benefits{border:1px solid var(--linea);border-radius:16px;margin-bottom:16px;padding:13px 16px;background:#fff}
+.loyalty-benefits summary{cursor:pointer;font-weight:850}
+.loyalty-benefits ul{list-style:none;margin:8px 0 0;padding:0}
+.loyalty-benefits li{padding:8px 0;border-top:1px solid var(--linea);font-size:13px;line-height:1.5}
+.loyalty-benefits li span{display:block}
 .dug-sound-panel{margin-top:16px;padding:14px;background:#fff8f5;border:1px solid #f0dad4;border-radius:15px}
 .dug-sound-switch{display:flex;align-items:center;gap:14px;justify-content:space-between;color:#3b1c1c;cursor:pointer}
 .dug-sound-switch strong{display:block;font-size:13px;font-weight:950}
 .dug-sound-switch small{display:block;margin-top:4px;font-size:11px;line-height:1.45;color:#776968;font-weight:600}
 .dug-sound-switch input{width:22px;height:22px;flex:0 0 22px;accent-color:var(--rojo);cursor:pointer}
 .dug-sound-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.dug-sound-actions[hidden]{display:none}
 .dug-sound-actions button{border:1px solid #e5c9c5;border-radius:999px;background:#fff;color:var(--vino);font-weight:850;font-size:11px;padding:9px 12px;cursor:pointer}
 .dug-sound-actions button:active{transform:scale(.98)}
 .dug-sound-caption{font-size:10.5px;line-height:1.5;color:#816e6b;margin-top:9px}
@@ -2487,7 +2506,6 @@ const DUGNoticeTone = (() => {
 <section id="screen-profile" class="screen">
   <div class="page">
     <h1 class="page-title mb16">Cuenta</h1>
-    <div id="statsBox"></div>
     <div class="profile-card mb16">
       <div class="row">
         <div class="avatar" id="profileAvatar">DG</div>
@@ -2518,7 +2536,7 @@ const DUGNoticeTone = (() => {
       <div class="dug-push-status" aria-live="polite"><span class="dug-push-dot" id="dugPushDot"></span><span id="dugPushStatus">Revisando compatibilidad…</span></div>
       <div class="dug-sound-panel">
         <label class="dug-sound-switch" for="dugSoundEnabled"><span><strong>Sonido de avisos</strong><small>Un tono para tus pedidos y otro para los nuevos pedidos del administrador.</small></span><input id="dugSoundEnabled" type="checkbox" checked onchange="DUGNoticeTone.setEnabled(this.checked)" aria-label="Activar sonido de notificaciones dentro de la aplicación"></label>
-        <div class="dug-sound-actions">
+        <div class="dug-sound-actions" id="dugSoundPreviews">
           <button type="button" onclick="DUGNoticeTone.preview('client')">▶ Escuchar cliente</button>
           <button type="button" onclick="DUGNoticeTone.preview('admin')">▶ Escuchar administrador</button>
         </div>
@@ -2570,6 +2588,8 @@ const DUGNoticeTone = (() => {
         <div class="reward-benefit"><strong>Usa</strong><span>Aplica el descuento al confirmar tu pedido.</span></div>
       </div>
     </div>
+
+    <div id="loyaltyCard"></div>
 
     <div class="reward-claim-card">
       <div class="eyebrow">Activar tarjeta</div>
@@ -3423,6 +3443,7 @@ const App = {
           await Orders.loadMineAll();
           const active = document.querySelector(".screen.active")?.id || "";
           if(active === "screen-orders") Orders.render();
+          if(active === "screen-rewards") Loyalty.render();
           Orders.refreshOpen();
         },80);
       };
@@ -3545,7 +3566,7 @@ const App = {
     if(name==="cart") Cart.render();
     if(name==="checkout") Checkout.render();
     if(name==="orders") Orders.render();
-    if(name==="rewards") Rewards.render();
+    if(name==="rewards") { Rewards.render(); Loyalty.render(); }
     if(name==="profile") Profile.render();
     if(name==="private") Private.render();
 
@@ -5288,27 +5309,40 @@ Checkout.delivery = function(t){ _coDel(t); Addr.render(); };
 const _coPlace = Checkout.place.bind(Checkout);
 Checkout.place = function(){ Addr.saveIfAsked(); return _coPlace(); };
 
-const Stats = {
-  levels:[["Bronce",0],["Plata",100],["Oro",300]],
-  async render(){
-    const box = $("statsBox"); if(!box) return;
-    if(!state.user){ box.innerHTML = ""; return; }
-    if(!(state.myOrders||[]).length) await Orders.mine();
-    const orders = (state.myOrders||[]).filter(o=>o.status!=="cancelado"), n = orders.length;
-    const pts = Number(state.profile?.rewardPoints||0);
-    let li = 0; this.levels.forEach((l,i)=>{ if(pts>=l[1]) li = i; });
-    const next = this.levels[li+1];
-    const top = this.top(orders);
-    const seaFood = orders.some(o=>(o.items||[]).some(i=>(state.products.find(p=>p.id===i.productId||p.name===i.name)||{}).category==="Del Mar"));
-    const ach = [["Primera compra",n>=1],["5 pedidos",n>=5],["10 pedidos",n>=10],["Cliente frecuente",n>=20],["Probaste Del Mar",seaFood]];
-    box.innerHTML = `<div class="ticket mb16"><strong>${this.levels[li][0]}</strong>${next ? `<p style="font-size:13px;margin:4px 0">Te faltan ${next[1]-pts} puntos para llegar a ${next[0].slice(3)}.</p><div style="height:8px;border-radius:8px;background:var(--linea)"><div style="height:8px;border-radius:8px;background:var(--rojo);width:${Math.min(100,Math.round((pts-this.levels[li][1])/(next[1]-this.levels[li][1])*100))}%"></div></div>` : `<p style="font-size:13px">¡Nivel máximo!</p>`}
-      <p style="font-size:13px;margin-top:10px">Llevas <b>${n}</b> pedido${n===1?"":"s"} con nosotros.${top ? ` Tu favorito es <b>${U.esc(top[0])}</b> (${top[1]} ${top[1]===1?"vez":"veces"}).` : ""}</p>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${ach.map(a=>`<span style="padding:5px 10px;border-radius:20px;font-size:12px;font-weight:800;background:${a[1]?'var(--crema-2)':'transparent'};border:1px solid var(--linea);opacity:${a[1]?1:.4}">${a[0]}</span>`).join("")}</div>
-    </div>`;
-  },
-  top(orders){
-    const c = {}; orders.forEach(o=>(o.items||[]).forEach(i=>c[i.name]=(c[i.name]||0)+(Number(i.qty)||1)));
-    return Object.entries(c).sort((a,b)=>b[1]-a[1])[0];
+const Loyalty = {
+  stampsPerRank: 10,
+  ranks: [
+    {name:"Bronce", color:"bronze", benefit:"Distintivo digital de bienvenida."},
+    {name:"Plata", color:"silver", benefit:"Distintivo Plata y reconocimiento por 10 pedidos entregados."},
+    {name:"Oro", color:"gold", benefit:"Distintivo Oro y reconocimiento por 20 pedidos entregados."},
+    {name:"Diamante", color:"diamond", benefit:"Distintivo Diamante y reconocimiento como cliente de máximo rango."}
+  ],
+  render(){
+    const card = $("loyaltyCard");
+    if(!card) return;
+    const uid = state.user?.uid;
+    if(!uid){ card.innerHTML = ""; return; }
+    const delivered = Orders.mergeLists((state.myOrders || []).filter(order =>
+      order.userId === uid && !order.localOnly && order.status === "entregado"));
+    const total = delivered.length;
+    const rankIndex = Math.min(Math.floor(total / this.stampsPerRank), this.ranks.length - 1);
+    const rank = this.ranks[rankIndex];
+    const next = this.ranks[rankIndex + 1];
+    const stamps = Math.min(this.stampsPerRank, total - rankIndex * this.stampsPerRank);
+    const progress = next ? "Te faltan " + (this.stampsPerRank - stamps) + " para llegar a " + next.name + "."
+      : stamps === this.stampsPerRank ? "¡Completaste la tarjeta Diamante!" : "Ya estás en el rango máximo. Completa tu tarjeta Diamante.";
+    const cells = Array.from({length:this.stampsPerRank}, (_, index) =>
+      '<li class="loyalty-stamp' + (index < stamps ? ' earned' : '') + '">' + (index < stamps ? "✓" : index + 1) + "</li>").join("");
+    const benefits = this.ranks.map((level,index) =>
+      '<li><strong>' + level.name + "</strong><span>" + (index * this.stampsPerRank) +
+      " pedidos entregados · " + level.benefit + "</span></li>").join("");
+    card.innerHTML = '<section class="loyalty-card loyalty-' + rank.color + '" aria-labelledby="loyaltyHeading">' +
+      '<div class="loyalty-heading"><div><div class="eyebrow">Tarjeta digital</div>' +
+      '<h2 id="loyaltyHeading">Cliente frecuente</h2></div><strong class="loyalty-rank">' + rank.name + "</strong></div>" +
+      '<p>Gana un sello por cada pedido entregado.</p><ol class="loyalty-stamps" aria-hidden="true">' + cells + "</ol>" +
+      '<p><strong>' + stamps + " de " + this.stampsPerRank + " sellos</strong> · " + progress + "</p>" +
+      '<p class="loyalty-total">Pedidos entregados: ' + total + "</p></section>" +
+      '<details class="loyalty-benefits"><summary>Rangos y beneficios</summary><ul>' + benefits + "</ul></details>";
   }
 };
 
@@ -5378,6 +5412,7 @@ const PushNotify = {
     const installBtn = document.getElementById("dugInstallButton");
     const enable = document.getElementById("dugEnablePush");
     const disable = document.getElementById("dugDisablePush");
+    const previews = document.getElementById("dugSoundPreviews");
     const label = document.getElementById("dugPushStatus");
     const dot = document.getElementById("dugPushDot");
     DUGNoticeTone.syncUI();
@@ -5399,6 +5434,7 @@ const PushNotify = {
     installBtn.hidden = installed || !this.installPrompt;
     enable.hidden = false;
     disable.hidden = true;
+    previews.hidden = false;
     dot.classList.remove("active");
     if(this.isIos() && !installed){
       enable.disabled = true;
@@ -5427,6 +5463,7 @@ const PushNotify = {
         if(linked?.exists){
           enable.hidden = true;
           disable.hidden = false;
+          previews.hidden = true;
           dot.classList.add("active");
           label.textContent = "Notificaciones activadas en este dispositivo.";
         }else{
@@ -5541,9 +5578,6 @@ const Profile = {
     }
   }
 };
-
-const _profRender = Profile.render.bind(Profile);
-Profile.render = function(){ _profRender(); Stats.render(); };
 
 const Private = {
   async open(){
